@@ -1,12 +1,4 @@
-<!--
-ISSUES
-
-- May need hidden links if sticking with deep dive link
--->
-
 <!-- START OF SECTION 3 -->
-
-
 
 ##### Neighborhood Explorer
 
@@ -82,7 +74,7 @@ limit 100
 
 <AreaMap
   data={neighborhood_selector}
-  geoJsonUrl='/sf_hoods.geojson'
+  geoJsonUrl='https://evd-geojson.b-cdn.net/sf_hoods.geojson'
   geoId=name
   areaCol=neighborhood
   value=cases

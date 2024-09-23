@@ -2,15 +2,6 @@
 title: San Francisco 311 Cases
 ---
 
-
-<!--
-ISSUES
-- Are nulls not getting counted as zero on days where there are no cases for a category? Seems to min out at 1, looks wrong
-- What is right time grain to use throughout app? Daily, weekly, monthly?
-- Include links to individual records on SF 311 Site (assuming conf. wifi good enough)
--->
-
-
 <!-- START OF SECTION 1 -->
 
 <!-- 1. Add your first query
