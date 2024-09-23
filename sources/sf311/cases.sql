@@ -1,1 +1,1 @@
-select * from sf311
+select * from sf311_sample
