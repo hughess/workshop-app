@@ -5,7 +5,7 @@ with case_summary as (
     select count(1) as count,
     count(1) filter (status = 'Closed') as closed
     from sf311.cases
-    where neighborhood ilike '${params.neighborhood}'
+    where neighborhood = '${params.neighborhood}'
 )
 
 select *, closed / count as close_rate
@@ -22,12 +22,21 @@ from case_summary
     comparisonFmt=pct
 />
 
-
 ```sql last_100
 select * from sf311.cases
-where neighborhood ilike '${params.neighborhood}'
+where neighborhood = '${params.neighborhood}'
+and latitude <> 0
 order by opened desc
 limit 100
+```
+
+```sql top_categories
+select category, count(1) as cases
+from sf311.cases
+    where neighborhood = '${params.neighborhood}'
+group by all
+order by cases desc
+limit 10
 ```
 
 <Grid cols=2>
@@ -48,49 +57,25 @@ limit 100
 
     <BarChart
         title="Top 10 Categories"
-        data={category_list}
+        data={top_categories}
         x=category
         y=cases
         swapXY=true
         chartAreaHeight=200
     />
     
-
 </Grid>
 
 
 
-
-
-
-
-<!-- 
-```sql dimensions
-select 
-  status,
-  status_notes,
-  responsible_agency,
-  category,
-  request_type,
-  source
-from sf311.cases
-where neighborhood ilike '${params.neighborhood}'
-```
-
-<DimensionGrid data={dimensions}/> -->
-
-
-
-
-
-```sql percentages
+```sql spike_detection
 WITH case_counts as (
     select 
         category,
         date_trunc('week', opened) as date,
         count(1) as cases
     from sf311.cases
-    where neighborhood ilike '${params.neighborhood}'
+    where neighborhood = '${params.neighborhood}'
     group by all
 ),
 
@@ -120,22 +105,10 @@ FROM
     category_stats
 ```
 
-
 ```sql all_spikes
-select *,
-concat(date, ' + ', category) as link
-from ${percentages}
+select *
+from ${spike_detection}
 where status = 'Spike'
-```
-
-
-```sql category_list
-select category, count(1) as cases
-from sf311.cases
-    where neighborhood ilike '${params.neighborhood}'
-group by all
-order by cases desc
-limit 10
 ```
 
 # Weekly Volume Spikes in {params.neighborhood}
@@ -145,23 +118,22 @@ limit 10
 </Details>
 
 
-
-```sql cats_with_spikes
+```sql categories_with_spikes
 select category, sum(cases) as cases 
 from ${all_spikes}
 group by all
 order by cases desc
 ```
 
-{#if cats_with_spikes.length > 0}
+{#if categories_with_spikes.length > 0}
 
 <Grid cols=3>
 
-{#each cats_with_spikes as row}
+{#each categories_with_spikes as row}
 
     <LineChart
         title={row.category}
-        data={percentages.where(`category = '${row.category}'`)}
+        data={spike_detection.where(`category = '${row.category}'`)}
         x=date
         y=cases
         handleMissing=zero
